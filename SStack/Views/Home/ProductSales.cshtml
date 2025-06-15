@@ -1,0 +1,53 @@
+﻿@model IEnumerable<SStack.ApiModels.ProductSale>
+
+@{
+    ViewBag.Title = "ProductSales";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="p-3 mb-2 bg-secondary text-white">Product Sales Totals</div>
+    </div>
+</div>
+
+<div class="row">
+    <table class="table table-sm table-striped">
+        <tr>
+            <th>
+                ID
+            </th>
+            <th>
+                Product
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.QTY)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Total)
+            </th>
+            <th>-</th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ProductId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ProductName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.QTY)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Total)
+                </td>
+                <td>
+                    -
+                </td>
+            </tr>
+        }
+
+    </table>
+</div>

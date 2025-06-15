@@ -1,0 +1,242 @@
+﻿@model SStack.ViewModel.HomeVM
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<main>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="p-3 mb-2 bg-secondary text-white">
+                <section class="row" aria-labelledby="aspnetTitle">
+                    <h1 id="title">SMOOTH STACK DEMO</h1>
+                    <p class="lead">This sample web application has been done using Asp.Net MVC, web API, Entity framework and MS SQL database</p>
+
+                </section>
+            </div>
+        </div>
+        <div class="col-md-4" style="padding-top:15px;">
+            @Html.ActionLink("Go to Product Sales", "ProductSales", "Home", new { area = "" }, new { @class = "btn btn-sm btn-info" })
+        </div>
+    </div>
+
+
+    <hr />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="p-3 mb-2 bg-secondary text-white">My Orders</div>
+        </div>
+    </div>
+    <div class="row">
+        @if (Model.CustomerOrders.Any())
+        {
+
+            var ordersIds = Model.CustomerOrders.Select(c => c.CustomerOrderId).Distinct().ToList();
+
+
+            <div>
+                <table class="table table-striped table-sm">
+                    <tr>
+                        <th>ID</th>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th></th>
+                    </tr>
+
+                    @foreach (var orderId in ordersIds)
+                    {
+                        <tr>
+                            <td colspan="3" style="background-color:black;color:white;text-align:center">Order ID: @orderId</td>
+                            <td>
+                                @if (Model.CustomerOrders.Where(w => w.CustomerOrderId == orderId).FirstOrDefault().OrderStatus == "OPEN")
+                                {
+                                    <a href="#" class="btn btn-sm btn-outline-danger lnk" data-id="@orderId" data-bs-toggle="modal" data-bs-target="#checkoutModal">Checkout</a>
+
+                                }
+                                else if (Model.CustomerOrders.Where(w => w.CustomerOrderId == orderId).FirstOrDefault().OrderStatus == "SHIPPED")
+                                {
+                                    <a href="#" class="btn btn-sm btn-outline-secondary lnk2" data-id="@orderId" data-bs-toggle="modal" data-bs-target="#receiveGoodsModal">Receive Goods</a>
+                                }
+                                else
+                                {
+
+                                    <span>DELIVERED</span>
+                                }
+                            </td>
+
+                        </tr>
+
+                        foreach (var item in Model.CustomerOrders.Where(q => q.CustomerOrderId == orderId))
+                        {
+                            <tr>
+                                <td>@item.ProductId</td>
+                                <td>@item.ProductName</td>
+                                <td>@item.FinalPrice.ToString("N2")</td>
+                                <td>
+                                    -
+                                </td>
+                            </tr>
+                        }
+                    }
+                </table>
+            </div>
+        }
+        else
+        { <div>
+                <h1>You have No order currently</h1>
+            </div>
+        }
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="p-3 mb-2 bg-secondary text-white">Available Products</div>
+        </div>
+        <div>
+            <table class="table table-striped table-sm">
+                <tr>
+                    <th>ID</th>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th></th>
+                </tr>
+                @foreach (var item in Model.Products)
+                {
+                    <tr>
+                        <td>@item.ProductId</td>
+                        <td>@item.ProductName</td>
+                        <td>@item.Price.ToString("N2")</td>
+                        <td>
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <a href="Home/AddProduct/@item.ProductId" class="btn btn-sm btn-outline-info"> Add To Cart</a>
+                            }
+                            else
+                            {
+                                <span>Login to add to cart</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
+
+    <div class="row">
+        @*<section class="col-md-4" aria-labelledby="gettingStartedTitle">
+                <h2 id="gettingStartedTitle">Getting started</h2>
+                <p>
+                    ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
+                    enables a clean separation of concerns and gives you full control over markup
+                    for enjoyable, agile development.
+                </p>
+                <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
+            </section>
+            <section class="col-md-4" aria-labelledby="librariesTitle">
+                <h2 id="librariesTitle">Get more libraries</h2>
+                <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
+                <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
+            </section>
+            <section class="col-md-4" aria-labelledby="hostingTitle">
+                <h2 id="hostingTitle">Web Hosting</h2>
+                <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
+                <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
+            </section>*@
+    </div>
+
+
+</main>
+
+<div id="modals">
+
+
+    <!-- Check out Modal -->
+    <div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Checkout</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @using (Html.BeginForm("Checkout", "Home"))
+                    {
+                        @Html.AntiForgeryToken()
+                        <div>
+                            <h2>Are you sure you want to checkout?</h2>
+                        </div>
+                        <input type="hidden" name="hdnOrderId" id="hdnOrderId" />
+                        <button type="submit" class="btn btn-primary" style="float:right;">Proceed -></button>
+                    }
+                </div>
+                <div class="modal-footer">
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Receive Goods Modal -->
+    <div class="modal fade" id="receiveGoodsModal" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel1">Checkout</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @using (Html.BeginForm("ReceiveGoods", "Home"))
+                    {
+                        @Html.AntiForgeryToken()
+                        <div>
+                            <h2>Are you sure you to proceed?</h2>
+                        </div>
+                        <input type="hidden" name="hdnOrderId2" id="hdnOrderId2" />
+                        <button type="submit" class="btn btn-primary" style="float:right;">Proceed -></button>
+                    }
+                </div>
+                <div class="modal-footer">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script>
+        $(document).ready(function () {
+            $(".lnk").click(function () {
+                var oid = $(this).attr("data-id");
+
+
+                console.log("= == = = = = = = = = = = = =" + oid);
+
+                $("#hdnOrderId").val(oid);
+
+                //$("#docUploadModal").modal();
+
+                return true;
+            });
+
+            $(".lnk2").click(function () {
+                var oid = $(this).attr("data-id");
+
+
+                console.log("= == = = = = = = = = = = = =" + oid);
+
+                $("#hdnOrderId2").val(oid);
+
+                //$("#docUploadModal").modal();
+
+                return true;
+            });
+
+
+
+        });
+    </script>
+}
